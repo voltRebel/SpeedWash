@@ -254,30 +254,31 @@ faqItems.forEach(item => {
     });
 });
 
-// Auto-scrolling services slider
+// Auto-scrolling services slider (infinite, no scrollbar)
 const servicesSlider = document.querySelector('.services-slider');
 if (servicesSlider) {
     let isDown = false;
     let startX;
     let scrollLeft;
-    let autoScrollInterval;
     let isPaused = false;
+    let rafId;
 
-    // Auto-scroll function
-    function startAutoScroll() {
-        autoScrollInterval = setInterval(() => {
-            if (!isPaused && !isDown) {
-                const maxScroll = servicesSlider.scrollWidth - servicesSlider.clientWidth;
-                
-                if (servicesSlider.scrollLeft >= maxScroll) {
-                    // Reset to beginning smoothly
-                    servicesSlider.scrollTo({ left: 0, behavior: 'smooth' });
-                } else {
-                    // Scroll forward
-                    servicesSlider.scrollBy({ left: 2, behavior: 'auto' });
-                }
+    // Duplicate items to enable seamless looping
+    const originalItems = Array.from(servicesSlider.children);
+    originalItems.forEach(item => servicesSlider.appendChild(item.cloneNode(true)));
+    const loopWidth = originalItems.reduce((w, item) => w + item.getBoundingClientRect().width + parseFloat(getComputedStyle(servicesSlider).columnGap || getComputedStyle(servicesSlider).gap || 0), 0);
+
+    const SPEED_PX_PER_FRAME = 0.75; // ~45px/sec at 60fps
+
+    function step() {
+        if (!isPaused && !isDown) {
+            servicesSlider.scrollLeft += SPEED_PX_PER_FRAME;
+            if (servicesSlider.scrollLeft >= loopWidth) {
+                // Jump back by one loop width without visible jump
+                servicesSlider.scrollLeft -= loopWidth;
             }
-        }, 30);
+        }
+        rafId = requestAnimationFrame(step);
     }
 
     // Pause on hover
@@ -304,7 +305,7 @@ if (servicesSlider) {
         servicesSlider.style.cursor = 'grab';
         setTimeout(() => {
             isPaused = false;
-        }, 1000);
+        }, 300);
     });
 
     servicesSlider.addEventListener('mousemove', (e) => {
@@ -334,12 +335,13 @@ if (servicesSlider) {
     servicesSlider.addEventListener('touchend', () => {
         setTimeout(() => {
             isPaused = false;
-        }, 1000);
+        }, 300);
     });
 
     // Set initial cursor and start auto-scroll
     servicesSlider.style.cursor = 'grab';
-    startAutoScroll();
+    cancelAnimationFrame(rafId);
+    rafId = requestAnimationFrame(step);
 }
 
 // Console welcome message
