@@ -1742,6 +1742,19 @@ body.light-mode .navbar {
     .footer-content {
         grid-template-columns: 1fr;
     }
+
+    /* Tighter Work Process cards on mobile */
+    .process-image { height: 160px; }
+    .process-image i { font-size: 2.2rem; }
+    .process-card h3 { font-size: 1.125rem; }
+    .process-card p { font-size: 0.95rem; }
+
+    /* Slightly smaller quick service chips */
+    .service-card-mini {
+        min-height: 90px;
+        padding: var(--spacing-sm) var(--spacing-md);
+    }
+    .service-card-mini i { font-size: 2rem; }
 }
 
 /* ========================================
